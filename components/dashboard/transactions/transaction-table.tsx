@@ -15,30 +15,28 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Eye, Edit, Trash, Printer } from "lucide-react";
-import { useEffect, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { toast } from "@/hooks/use-toast";
 
 type Transaction = {
   id: string;
   date: string;
   type: string;
-  product: string;
-  quantity: number;
-  reference: string;
-  notes: string;
+  orderNumber: number;
+  createdAt : string;
 };
 
 export function TransactionTable() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(false);
   const [viewTransaction, setViewTransaction] = useState<Transaction | null>(null);
-  const [editTransaction, setEditTransaction] = useState<Transaction | null>(null);
+  // const [editTransaction, setEditTransaction] = useState<Transaction | null>(null);
 
   useEffect(() => {
     const fetchTransactions = async () => {
       setLoading(true);
       try {
-        const response = await fetch("/api/transaction", { method: "GET" });
+        const response = await fetch("/api/orders", { method: "GET" });
         if (!response.ok) {
           throw new Error("Failed to fetch transactions");
         }
@@ -58,57 +56,57 @@ export function TransactionTable() {
     fetchTransactions();
   }, []);
 
-  const deleteTransaction = async (id: string) => {
-    try {
-      const response = await fetch(`/api/transaction/${id}`, { method: "DELETE" });
-      if (!response.ok) {
-        throw new Error("Failed to delete transaction");
-      }
-      setTransactions((prev) => prev.filter((t) => t.id !== id));
-      toast({
-        title: "Success",
-        description: "Transaction deleted successfully.",
-        variant: "default",
-      });
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to delete transaction.",
-        variant: "destructive",
-      });
-    }
-  };
+  // const deleteTransaction = async (id: string) => {
+  //   try {
+  //     const response = await fetch(`/api/transaction/${id}`, { method: "DELETE" });
+  //     if (!response.ok) {
+  //       throw new Error("Failed to delete transaction");
+  //     }
+  //     setTransactions((prev) => prev.filter((t) => t.id !== id));
+  //     toast({
+  //       title: "Success",
+  //       description: "Transaction deleted successfully.",
+  //       variant: "default",
+  //     });
+  //   } catch (error: any) {
+  //     toast({
+  //       title: "Error",
+  //       description: error.message || "Failed to delete transaction.",
+  //       variant: "destructive",
+  //     });
+  //   }
+  // };
 
-  const updateTransaction = async (updatedTransaction: Transaction) => {
-    try {
-      const response = await fetch(`/api/transaction/${updatedTransaction.id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(updatedTransaction),
-      });
-      if (!response.ok) {
-        throw new Error("Failed to update transaction");
-      }
-      setTransactions((prev) =>
-        prev.map((t) => (t.id === updatedTransaction.id ? updatedTransaction : t))
-      );
-      toast({
-        title: "Success",
-        description: "Transaction updated successfully.",
-        variant: "default",
-      });
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to update transaction.",
-        variant: "destructive",
-      });
-    } finally {
-      setEditTransaction(null);
-    }
-  };
+  // const updateTransaction = async (updatedTransaction: Transaction) => {
+  //   try {
+  //     const response = await fetch(`/api/transaction/${updatedTransaction.id}`, {
+  //       method: "PUT",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //       body: JSON.stringify(updatedTransaction),
+  //     });
+  //     if (!response.ok) {
+  //       throw new Error("Failed to update transaction");
+  //     }
+  //     setTransactions((prev) =>
+  //       prev.map((t) => (t.id === updatedTransaction.id ? updatedTransaction : t))
+  //     );
+  //     toast({
+  //       title: "Success",
+  //       description: "Transaction updated successfully.",
+  //       variant: "default",
+  //     });
+  //   } catch (error: any) {
+  //     toast({
+  //       title: "Error",
+  //       description: error.message || "Failed to update transaction.",
+  //       variant: "destructive",
+  //     });
+  //   } finally {
+  //     setEditTransaction(null);
+  //   }
+  // };
 
   return (
     <div className="rounded-md border">
@@ -126,23 +124,28 @@ export function TransactionTable() {
           </TableHeader>
           <TableBody>
             {transactions.length > 0 ? (
-              transactions.map((transaction) => (
-                <TableRow key={transaction.id}>
-                  <TableCell>{transaction.date}</TableCell>
+              transactions.map((Order) => (
+                <TableRow key={Order.id}>
+                  <TableCell>
+                    {/* {new Date(Order.date).toLocaleDateString()} */}
+                    {Order.createdAt.slice(0, 10)}
+                  </TableCell>
                   <TableCell>
                     <Badge
                       variant={
-                        transaction.type === "INBOUND"
+                        Order.type === "INBOUND"
                           ? "default"
-                          : transaction.type === "OUTBOUND"
+                          : Order.type === "OUTBOUND"
                           ? "secondary"
                           : "outline"
                       }
                     >
-                      {transaction.type}
+                      {Order.type}
                     </Badge>
                   </TableCell>
-                  <TableCell>{transaction.reference}</TableCell>
+                  <TableCell>{Order.orderNumber}</TableCell>
+                  
+
                   <TableCell>
                     <div className="flex items-center space-x-2">
                       <Button variant="ghost" size="sm">
